@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>RESTful API(1) - Yoonho의 블로그</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Yoonho의 블로그"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Yoonho의 블로그"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Restful API에 대한 이해를 위해서는 REST에 대한 이해가 선행되어야 한다.오늘은 REST 아키텍처에 대한 내용을 먼저 배우고 넘어가보자."><meta property="og:type" content="blog"><meta property="og:title" content="RESTful API(1)"><meta property="og:url" content="http://example.com/2022/03/26/RESTful-API(1)/"><meta property="og:site_name" content="Yoonho의 블로그"><meta property="og:description" content="Restful API에 대한 이해를 위해서는 REST에 대한 이해가 선행되어야 한다.오늘은 REST 아키텍처에 대한 내용을 먼저 배우고 넘어가보자."><meta property="og:locale" content="en_US"><meta property="og:image" content="http://example.com/post_images/restful_api.png"><meta property="article:published_time" content="2022-03-25T16:12:53.000Z"><meta property="article:modified_time" content="2022-03-26T04:37:08.070Z"><meta property="article:author" content="SeoYoonho"><meta property="article:tag" content="CS지식"><meta property="article:tag" content="면접 예상"><meta property="article:tag" content="REful API"><meta property="article:tag" content="REST"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/post_images/restful_api.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2022/03/26/RESTful-API(1)/"},"headline":"RESTful API(1)","image":["http://example.com/post_images/restful_api.png"],"datePublished":"2022-03-25T16:12:53.000Z","dateModified":"2022-03-26T04:37:08.070Z","author":{"@type":"Person","name":"SeoYoonho"},"publisher":{"@type":"Organization","name":"Yoonho의 블로그","logo":{"@type":"ImageObject"}},"description":"Restful API에 대한 이해를 위해서는 REST에 대한 이해가 선행되어야 한다.오늘은 REST 아키텍처에 대한 내용을 먼저 배우고 넘어가보자."}</script><link rel="canonical" href="http://example.com/2022/03/26/RESTful-API(1)/"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Yoonho의 블로그</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-9-tablet is-9-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-03-25T16:12:53.000Z" title="2022-3-26 1:12:53">2022-03-26</time></span><span class="level-item"><a class="link-muted" href="/categories/CS/">CS</a><span> / </span><a class="link-muted" href="/categories/CS/RESTful-API/">RESTful API</a></span></div></div><h1 class="title is-3 is-size-4-mobile">RESTful API(1)</h1><div class="content"><p><img src="/post_images/restful_api.png" alt="restful_api"><br>Restful API에 대한 이해를 위해서는 REST에 대한 이해가 선행되어야 한다.<br>오늘은 REST 아키텍처에 대한 내용을 먼저 배우고 넘어가보자.</p>
+<span id="more"></span>
+
+<p>현대 애플리케이션은 대부분 프론트엔드라 부르는 클라이언트와 백엔드라 부르는 서버가 상호간 데이터를 주고받는 형태의 아키텍처를 가지고 있다.</p>
+<p>이러한 구조의 가장 큰 특징중 하나는 서버와 클라이언트가 독립적으로 진화할 수 있다는 것이다.<br>독립적으로 진화한다는 뜻은 각각의 업데이트 내용이 서로에게 영향을 미치지 않는 다는 것이다.</p>
+<p>대표적인 예는 웹(web)이다. 웹 페이지의 변경이 브라우저에 영향을 미치지 못하고, 브라우저의 변경또한 페이지에 영향을 미치지 못한다. 서버와 클라이언트가 서로에게 영향을 끼치지 않고 독립적으로 진화하기 때문이다.</p>
+<p>이러한 클라이언트 서버간의 독립적 진화를 위한 분산시스템 아키텍처로 가장 널리 쓰이는게 REST <em>(Representatioin State Transfer)</em> 아키텍쳐이다</p>
+<h3 id="REST-Representation-State-Transfer"><a href="#REST-Representation-State-Transfer" class="headerlink" title="REST(Representation State Transfer)"></a><strong>REST(Representation State Transfer)</strong></h3><p>REST는 2000년 HTTP의 주요 저자중 한 사람인 로이 필딩에 의해 제안되었다.<br>그는 웹의 장점을 최대한 활용할 수 있는 아키텍처로써 REST를 발표하였고, 이를 통해 웹기술이 지속적으로 발전할 수 있게 되었다.</p>
+<p>많은 사람들이 REST가 URI 패턴과 GET,POST 등의 HTTP Method 의 조합으로 이루어져 있다고 생각하지만,REST 아키텍처는 아키텍처라는 그 이름답게 결국 제약조건들의 집합이다.</p>
+<p>REST는 다음 여섯가지 제약조건을 가지고 있다.</p>
+<ol>
+<li>Client-Server</li>
+<li>Stateless</li>
+<li>Cache</li>
+<li>Uniform Interface</li>
+<li>Layered System</li>
+<li>Code On Demand(Optional)</li>
+</ol>
+<p>각각에 대하여 살펴보도록 하자</p>
+<h4 id="Client-Server"><a href="#Client-Server" class="headerlink" title="Client-Server"></a><strong>Client-Server</strong></h4><p>흔히들 이야기하는 서버와 클라이언트의 관계를 의미한다. 대부분 현대 애플리케이션은 서버-클라이언트 기반으로 만들어지고 사실상 이 구조를 벗어나는 것 자체가 힘든일이기 때문에 자연스럽게 만족되는 제약조건이라 할 수 있다.</p>
+<h4 id="Stateless"><a href="#Stateless" class="headerlink" title="Stateless"></a><strong>Stateless</strong></h4><p>서버는 클라이언트의 각각의 요청을 모두 별개의 것으로 인식해야하고 이를 위해 모든 요청은 각자가 필요한 정보를 모두 담고 있어야 한다.<br>요청 하나만 봐도 그 요청의 내용을 바로 알아볼 수 있어야 한다는 것이다.</p>
+<h4 id="Cache"><a href="#Cache" class="headerlink" title="Cache"></a><strong>Cache</strong></h4><p>HTTP라는 존재하는 프로토콜을 사용하기 때문에 웹에서 사용되는 기술인 캐시 역시 사용 가능하다.<br>모든 서버응답은 캐시의 사용가능여부를 알고있어야하여, 캐시 사용을 고려한 설계가 필요하다.</p>
+<h4 id="Uniform-Interface"><a href="#Uniform-Interface" class="headerlink" title="Uniform Interface"></a><strong>Uniform Interface</strong></h4><p>구성요소들(서버,클라이언트)간의 인터페시으가 균일애햐 한다는 의미이다. 구체적으로 미디어 유형이나, 리소스 식별자 등을 구별하는 문법이 상호간 동일해야 한다는 뜻이다.<br>이를 위해 REST는 네가지 제약사항을 제시하고 있다.</p>
+<ul>
+<li>identification of resources<br>리소스를 식별하는 방법이 동일해야 한다. 흔히들 URI를 통해 리소스를 식별한다</li>
+<li>manipulation of resources through representation<br>리소스 자체를 전송하는 것이 아닌 리소스의 표현을 전송한다는 뜻. 서버에 있는 리소스가 아니라 현재 리소스의 상태를 반영하는 표현체를 전송함으로써 서버의 리소스 상태가 변해도 클라이언트에는 영향을 끼치지 못한다.</li>
+<li>self-descriptive messages<br>요청이나 응답에는 스스로를 설명하는 정보를 포함하고 있어야 한다. 따라서 수신자는 이 정보를 통해 메시지를 이해할 수 있다.</li>
+<li>hypermedia as the engine of application state<br>애플리케이션의 상태는 하이퍼미디어에 의해 변경된다는 것이다. 따라서 서버는 하이퍼미디어를 통해 다음 액션에 대한 선택지를 클라이언트에게 제공해야 한다.</li>
+</ul>
+<h4 id="Layered-System"><a href="#Layered-System" class="headerlink" title="Layered System"></a><strong>Layered System</strong></h4><p>클라이언트 혹은 서버 모두 미들웨어 구성을 추가할 수 있는 구조를 가지고 있어야 한다는 의미이다.</p>
+<h4 id="Code-On-Demand-Optional"><a href="#Code-On-Demand-Optional" class="headerlink" title="Code On Demand(Optional)"></a><strong>Code On Demand(Optional)</strong></h4><p>서버는 클라이언트로 실행 가능한 프로그램을 전달할 수 있어야 한다. 쉽게 Javascript를 생각하면 된다. 그러나 이 조건은 선택사항이며 필수적이지는 않다.</p>
+<h3 id="RESTful-AIP"><a href="#RESTful-AIP" class="headerlink" title="RESTful AIP"></a>RESTful AIP</h3><p>RESTful API(REST API)란 위의 제약조건에 따르는 애플리케이션 프로그래밍 인터페이스를 뜻한다. 그러나 우리가 RESTful API라고 부르는 것들은 사실 REST하지 않은 경우가 대부분이다.<br>특히 <u>self-descriptve messages와 hypermedia as the engine of application state 원칙을 지키는 것이 상당히 까다로운 편이기 때문에 이 두원칙을 지키지 못하는 경우가 많다.</u></p>
+<p>물론 로이 필딩은 이런 API를 REST라 불러선 안된다고 주장하지만 이미 많은 개발자들과 기업들은 REST 원칙을 지키지 못한 API들을 RESTful API라고 부르고 있다.</p>
+<p>다음 챕터는 이런 제약조건들을 만족시키지는 못했지만 우리가 흔히들 RESTful API라 부르는 개념에 대해서 살펴보는 시간을 가지겠다.</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>RESTful API(1)</p><p><a href="http://example.com/2022/03/26/RESTful-API(1)/">http://example.com/2022/03/26/RESTful-API(1)/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>SeoYoonho</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2022-03-26</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2022-03-26</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/CS%EC%A7%80%EC%8B%9D/">CS지식</a><a class="link-muted mr-2" rel="tag" href="/tags/%EB%A9%B4%EC%A0%91-%EC%98%88%EC%83%81/">면접 예상</a><a class="link-muted mr-2" rel="tag" href="/tags/REful-API/">REful API</a><a class="link-muted mr-2" rel="tag" href="/tags/REST/">REST</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2022/03/25/kinesis-%EC%A4%91%EB%B3%B5%EB%A0%88%EC%BD%94%EB%93%9C-%EC%B2%98%EB%A6%AC-atleast-once/"><span class="level-item">kinesis 중복레코드 처리(atleast once)</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="disqus_thread"><noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div><script>var disqus_config = function () {
+            this.page.url = 'http://example.com/2022/03/26/RESTful-API(1)/';
+            this.page.identifier = '2022/03/26/RESTful-API(1)/';
+        };
+        (function() {
+            var d = document, s = d.createElement('script');  
+            s.src = '//' + 'seoyoonho' + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();</script></div></div></div><!--!--><div class="column column-right is-3-tablet is-3-desktop is-3-widescreen  order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#REST-Representation-State-Transfer"><span class="level-left"><span class="level-item">1</span><span class="level-item">REST(Representation State Transfer)</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Client-Server"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">Client-Server</span></span></a></li><li><a class="level is-mobile" href="#Stateless"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">Stateless</span></span></a></li><li><a class="level is-mobile" href="#Cache"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">Cache</span></span></a></li><li><a class="level is-mobile" href="#Uniform-Interface"><span class="level-left"><span class="level-item">1.4</span><span class="level-item">Uniform Interface</span></span></a></li><li><a class="level is-mobile" href="#Layered-System"><span class="level-left"><span class="level-item">1.5</span><span class="level-item">Layered System</span></span></a></li><li><a class="level is-mobile" href="#Code-On-Demand-Optional"><span class="level-left"><span class="level-item">1.6</span><span class="level-item">Code On Demand(Optional)</span></span></a></li></ul></li><li><a class="level is-mobile" href="#RESTful-AIP"><span class="level-left"><span class="level-item">2</span><span class="level-item">RESTful AIP</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AWS/"><span class="level-start"><span class="level-item">AWS</span></span><span class="level-end"><span class="level-item tag">1</span></span></a><ul><li><a class="level is-mobile" href="/categories/AWS/Kinesis/"><span class="level-start"><span class="level-item">Kinesis</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/CS/"><span class="level-start"><span class="level-item">CS</span></span><span class="level-end"><span class="level-item tag">1</span></span></a><ul><li><a class="level is-mobile" href="/categories/CS/RESTful-API/"><span class="level-start"><span class="level-item">RESTful API</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/%EC%97%B0%EC%8A%B5/"><span class="level-start"><span class="level-item">연습</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-25T16:12:53.000Z">2022-03-26</time></p><p class="title"><a href="/2022/03/26/RESTful-API(1)/">RESTful API(1)</a></p><p class="categories"><a href="/categories/CS/">CS</a> / <a href="/categories/CS/RESTful-API/">RESTful API</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-25T10:09:48.000Z">2022-03-25</time></p><p class="title"><a href="/2022/03/25/kinesis-%EC%A4%91%EB%B3%B5%EB%A0%88%EC%BD%94%EB%93%9C-%EC%B2%98%EB%A6%AC-atleast-once/">kinesis 중복레코드 처리(atleast once)</a></p><p class="categories"><a href="/categories/AWS/">AWS</a> / <a href="/categories/AWS/Kinesis/">Kinesis</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-25T08:58:57.000Z">2022-03-25</time></p><p class="title"><a href="/2022/03/25/%EA%B2%8C%EC%8B%9C%EB%AC%BC/">게시물</a></p><p class="categories"><a href="/categories/%EC%97%B0%EC%8A%B5/">연습</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">Yoonho의 블로그</a><p class="is-size-7"><span>&copy; 2022 SeoYoonho</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
