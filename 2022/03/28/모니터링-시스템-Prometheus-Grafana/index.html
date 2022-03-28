@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>모니터링 시스템(Prometheus, Grafana) - Yoonho의 블로그</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Yoonho의 블로그"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Yoonho의 블로그"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="2018년 유지보수중이던 시스템이 기존 NT 서버에서 AWS로 모든 인프라를 옮기는 대공사를 진행하게 되었다.인프라 전면전환 작업은 2년 가까운 시간이 되어서야 반영이 되었고, 2020년경부터 새로운 AWS인프라 위의 시스템을 유지보수하기 시작했다. 각종 문제들이 많이 생기기 시작했지만 가장 시급한 문제는 모니터링 시스템의 부재였다. 현재 내가 운영하고 있"><meta property="og:type" content="blog"><meta property="og:title" content="모니터링 시스템(Prometheus, Grafana)"><meta property="og:url" content="http://example.com/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/"><meta property="og:site_name" content="Yoonho의 블로그"><meta property="og:description" content="2018년 유지보수중이던 시스템이 기존 NT 서버에서 AWS로 모든 인프라를 옮기는 대공사를 진행하게 되었다.인프라 전면전환 작업은 2년 가까운 시간이 되어서야 반영이 되었고, 2020년경부터 새로운 AWS인프라 위의 시스템을 유지보수하기 시작했다. 각종 문제들이 많이 생기기 시작했지만 가장 시급한 문제는 모니터링 시스템의 부재였다. 현재 내가 운영하고 있"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://example.com/post_images/prometheus/prom1.png"><meta property="og:image" content="http://example.com/post_images/prometheus/prom2.png"><meta property="article:published_time" content="2022-03-28T05:36:32.000Z"><meta property="article:modified_time" content="2022-03-28T07:47:45.015Z"><meta property="article:author" content="SeoYoonho"><meta property="article:tag" content="STIS"><meta property="article:tag" content="모니터링 시스템"><meta property="article:tag" content="Prometheus"><meta property="article:tag" content="Grafana"><meta property="article:tag" content="Expoter"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/post_images/prometheus/prom1.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/"},"headline":"모니터링 시스템(Prometheus, Grafana)","image":["http://example.com/post_images/prometheus/prom1.png","http://example.com/post_images/prometheus/prom2.png"],"datePublished":"2022-03-28T05:36:32.000Z","dateModified":"2022-03-28T07:47:45.015Z","author":{"@type":"Person","name":"SeoYoonho"},"publisher":{"@type":"Organization","name":"Yoonho의 블로그","logo":{"@type":"ImageObject"}},"description":"2018년 유지보수중이던 시스템이 기존 NT 서버에서 AWS로 모든 인프라를 옮기는 대공사를 진행하게 되었다.인프라 전면전환 작업은 2년 가까운 시간이 되어서야 반영이 되었고, 2020년경부터 새로운 AWS인프라 위의 시스템을 유지보수하기 시작했다. 각종 문제들이 많이 생기기 시작했지만 가장 시급한 문제는 모니터링 시스템의 부재였다. 현재 내가 운영하고 있"}</script><link rel="canonical" href="http://example.com/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Yoonho의 블로그</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-9-tablet is-9-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-03-28T05:36:32.000Z" title="2022-3-28 14:36:32">2022-03-28</time></span><span class="level-item"><a class="link-muted" href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/">모니터링</a><span> / </span><a class="link-muted" href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/Prometheus-Grafana/">Prometheus/Grafana</a></span></div></div><h1 class="title is-3 is-size-4-mobile">모니터링 시스템(Prometheus, Grafana)</h1><div class="content"><p>2018년 유지보수중이던 시스템이 기존 NT 서버에서 AWS로 모든 인프라를 옮기는 대공사를 진행하게 되었다.<br>인프라 전면전환 작업은 2년 가까운 시간이 되어서야 반영이 되었고, 2020년경부터 새로운 AWS인프라 위의 시스템을 유지보수하기 시작했다. 각종 문제들이 많이 생기기 시작했지만 가장 시급한 문제는 모니터링 시스템의 부재였다.</p>
+<p>현재 내가 운영하고 있는 시스템은 실시간 대용량 트랜잭션을 처리하는 시스템으로, 장애발생시 5분 이내에 복구조치가 되도록 계약되어 있었고, 이를 위해서 모니터링 체계 구축은 필수적인 작업이었다.</p>
+<p>많은 조사가 있었고 결국 우리는 프로메테우스와 그라파나라는 오픈소스를 사용하여 모니터링 체계를 구축하기 시작했다.</p>
+<span id="more"></span>
+
+<h3 id="왜-프로메테우스인가"><a href="#왜-프로메테우스인가" class="headerlink" title="왜 프로메테우스인가?"></a><strong>왜 프로메테우스인가?</strong></h3><p>회사생활을 하다보면, 아니 개발자로서 살아가다보면 기술을 이유없이 의미없이 가져다 쓰는 경우가 굉장히 많다. 얼마전 지인으로부터 모니터링 시스템에 관해 이야기하다 프로메테우스를 선택한 이유에 대한 질문을 받게되었다. 답변을 하기 위해 횡설수설 프로메테우스의 장점에 대해 이야기했지만, 막상 생각해보니 시스템을 구축할 당시 많은 고민을 해보고 선택하지는 않았음을 깨달았다. 물론 그 당시 나름의 이유가 있었지만 잘 기억이 안나기에 다시 한번 리마인드 하기 위해 관련 내용을 정리해보고자 한다.</p>
+<ul>
+<li><h4 id="Prometheus-장점"><a href="#Prometheus-장점" class="headerlink" title="Prometheus 장점"></a><strong>Prometheus 장점</strong></h4><p>프로메테우스 Github에서 설명하고 있는 장점들은 다음과 같습니다.</p>
+<ol>
+<li>다차원 데이터 모델 가능</li>
+<li>다차원 데이터 모델을 활용할 수 있는 유연한 쿼리언어(PromQL)</li>
+<li>분산 스토리지에서 어떠한 의존성도 없음</li>
+<li>모든 데이터는 <strong>HTTP(REST) Pull 기반으로 가져온다.</strong> 물론 Push도 가능함</li>
+<li>모니터링 타겟은 프로메테우스의 YAML 설정값을 통해 Discovery</li>
+</ol>
+<p>많은 장점들이 있지만 결국 프로메테우스의 가장 큰 특징이자 장점은 Pull방식의 모니터링 오픈소스라는 점이다. Pull 방식이란 대상 애플리케이션의 Exporter Enpoint로부터 데이터를 scrape 해오는 방식을 말한다.<br>이 방식 덕분에 모니터링 설정을 Data Backend에서 효율적으로 관리할 수 있고, 혹시라도 Prometheus 장애 발생시에도 애플리케이션에 지장이 가지 않을수가 있다.<br>위와 같은 장점들이 결국 프로메테우스를 선택하게 된 가장 큰 이유가 되었다.</p>
+<p>물론 프로메테우스가 장점만 존재하는것은 아니다. 이제부터는 프로메테우스의 한계점에 대해 알아보고자 한다.</p>
+</li>
+<li><h4 id="Prometheus-한계점"><a href="#Prometheus-한계점" class="headerlink" title="Prometheus 한계점"></a><strong>Prometheus 한계점</strong></h4><ol>
+<li>클러스터링 구조에 대한 미지원<br>  프로메테우스는 좋은 모니터링 시스템이긴 하지만 결정적인 문제점들이 있다. 그 첫번째가 바로 클러스터링 구조에 대한 미지원 문제이다. 이는 확장성과 가용성에 문제를 가져오게 된다.<ul>
+<li><p><strong>확장성</strong><br>시스템에서 모니터링 할 대상들이 많지 않다면 하나의 프로메테우스 서버로 감당이 가능하겠지만, 볼륨이 늘어난다면 버거워지기 마련이다. 이 문제를 해결하는 방법으로 Federation 이라는 방법을 사용한다. 프로메테우스 인스턴스를 여러개 기동한 다음, 중앙에 다른 프로메테우스로부터 메트릭을 수집하는 중앙 집중 프로메테우를 놓는 방식이고, 데이터 양에 대한 문제는 데이터 해상도를 줄이거나 평균, 합등의 대표값을 사용해서 해결 할 수 있다.</p>
+<center><img src="/post_images/prometheus/prom1.png"></center>
+</li>
+<li><p><strong>가용성</strong><br>프로메테우스는 하나의 서버로 기동되기 때문에 그 서버가 장애로 내려갈 경우, 그 시간동안은 매트릭을 수집할 수 없다는 단점을 가지고 있다. 이를 해결하기 위해서는 프로메테우스 인스턴스를 두개 이상 띄운 다음 같은 대상 시스템으로부터 매트릭을 수집하는 방식인데 이렇게 되면 해당 문제를 해결 할 수 있기는 하다.</p>
+<center><img src="/post_images/prometheus/prom2.png"></center>
+ 위의 아키텍쳐들은 역시 클러스터링의 대용일 뿐 제대로 되어 보이지는 않는다. 이를 해결하기 위해 오픈소스 타노스가 나왔지만 이는 나중에 다뤄보도록 한다.</li>
+</ul>
+</li>
+<li>오래 된 값 저장<br>  프로메테우스의 다른 문제점 중 하나는 로컬 디스크를 사용하기 때문에 일정 기간이 지나 오래된 데이터는 삭제가 된다는 점이다. 그래서 오래된 데이터에 대한 조회가 불가능하다.<br>  물론 이 문제에 대한 해결책 또한 오픈소스 타노스를 이용한다면 어느정도 해결이 되겠지만 이는 다루는 내용을 벗어나므로 다루지 않겠다.</li>
+</ol>
+<p>이러한 한계점들이 존재하지만 현재 운영시스템에서는 위와 같은 한계들을 인정하고서라도 프로메테우스의 장점을 높이 쳐줬기에 선택하게 되었다.<br>현 시스템이 그렇게 크지 않기때문에 클러스터링 구조는 필요가 없을것이라 판단했고, 오래된 값 또한 아쉽긴 하지만 실시간 모니터링에 초점을 두다보니 크게 문제가 되지 않았다.</p>
+<h3 id="왜-그라파나인가"><a href="#왜-그라파나인가" class="headerlink" title="왜 그라파나인가?"></a><strong>왜 그라파나인가?</strong></h3></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>모니터링 시스템(Prometheus, Grafana)</p><p><a href="http://example.com/2022/03/28/모니터링-시스템-Prometheus-Grafana/">http://example.com/2022/03/28/모니터링-시스템-Prometheus-Grafana/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>SeoYoonho</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2022-03-28</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2022-03-28</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/STIS/">STIS</a><a class="link-muted mr-2" rel="tag" href="/tags/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C/">모니터링 시스템</a><a class="link-muted mr-2" rel="tag" href="/tags/Prometheus/">Prometheus</a><a class="link-muted mr-2" rel="tag" href="/tags/Grafana/">Grafana</a><a class="link-muted mr-2" rel="tag" href="/tags/Expoter/">Expoter</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2022/03/26/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/"><span class="level-item">DB 트랜잭션</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="disqus_thread"><noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div><script>var disqus_config = function () {
+            this.page.url = 'http://example.com/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/';
+            this.page.identifier = '2022/03/28/모니터링-시스템-Prometheus-Grafana/';
+        };
+        (function() {
+            var d = document, s = d.createElement('script');  
+            s.src = '//' + 'seoyoonho' + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();</script></div></div></div><!--!--><div class="column column-right is-3-tablet is-3-desktop is-3-widescreen  order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#왜-프로메테우스인가"><span class="level-left"><span class="level-item">1</span><span class="level-item">왜 프로메테우스인가?</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Prometheus-장점"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">Prometheus 장점</span></span></a></li><li><a class="level is-mobile" href="#Prometheus-한계점"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">Prometheus 한계점</span></span></a></li></ul></li><li><a class="level is-mobile" href="#왜-그라파나인가"><span class="level-left"><span class="level-item">2</span><span class="level-item">왜 그라파나인가?</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AWS/"><span class="level-start"><span class="level-item">AWS</span></span><span class="level-end"><span class="level-item tag">1</span></span></a><ul><li><a class="level is-mobile" href="/categories/AWS/Kinesis/"><span class="level-start"><span class="level-item">Kinesis</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/CS/"><span class="level-start"><span class="level-item">CS</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/CS/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/"><span class="level-start"><span class="level-item">DB 트랜잭션</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/CS/RESTful-API/"><span class="level-start"><span class="level-item">RESTful API</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/CS/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-5%EC%9B%90%EC%B9%99-SOLID/"><span class="level-start"><span class="level-item">객체지향 5원칙(SOLID)</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/"><span class="level-start"><span class="level-item">모니터링</span></span><span class="level-end"><span class="level-item tag">1</span></span></a><ul><li><a class="level is-mobile" href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/Prometheus-Grafana/"><span class="level-start"><span class="level-item">Prometheus/Grafana</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/%EC%97%B0%EC%8A%B5/"><span class="level-start"><span class="level-item">연습</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-28T05:36:32.000Z">2022-03-28</time></p><p class="title"><a href="/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/">모니터링 시스템(Prometheus, Grafana)</a></p><p class="categories"><a href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/">모니터링</a> / <a href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/Prometheus-Grafana/">Prometheus/Grafana</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-26T12:56:34.000Z">2022-03-26</time></p><p class="title"><a href="/2022/03/26/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/">DB 트랜잭션</a></p><p class="categories"><a href="/categories/CS/">CS</a> / <a href="/categories/CS/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/">DB 트랜잭션</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-26T10:04:21.000Z">2022-03-26</time></p><p class="title"><a href="/2022/03/26/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-5%EC%9B%90%EC%B9%99-SOLID/">객체지향 5원칙(SOLID)</a></p><p class="categories"><a href="/categories/CS/">CS</a> / <a href="/categories/CS/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-5%EC%9B%90%EC%B9%99-SOLID/">객체지향 5원칙(SOLID)</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-25T16:12:53.000Z">2022-03-26</time></p><p class="title"><a href="/2022/03/26/RESTful-API/">RESTful API</a></p><p class="categories"><a href="/categories/CS/">CS</a> / <a href="/categories/CS/RESTful-API/">RESTful API</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-25T10:09:48.000Z">2022-03-25</time></p><p class="title"><a href="/2022/03/25/kinesis-%EC%A4%91%EB%B3%B5%EB%A0%88%EC%BD%94%EB%93%9C-%EC%B2%98%EB%A6%AC-atleast-once/">kinesis 중복레코드 처리(atleast once)</a></p><p class="categories"><a href="/categories/AWS/">AWS</a> / <a href="/categories/AWS/Kinesis/">Kinesis</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">Yoonho의 블로그</a><p class="is-size-7"><span>&copy; 2022 SeoYoonho</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
