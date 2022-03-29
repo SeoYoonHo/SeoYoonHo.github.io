@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>모니터링 시스템(Prometheus, Grafana)(2) - Yoonho의 블로그</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Yoonho의 블로그"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Yoonho의 블로그"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="프로메테우스와 그라파나의 전체적인 아키텍처 및 설치과정을 알아보도록 하자 프로메테우스&amp;#x2F;그라파나 아키텍쳐지난 게시물에서도 말했듯이 프로메테우스는 데이터소스, 그라파나는 시각화 툴의 역할을 각각 맡고 있다. 또한 프로메테우스는 서버 뿐만 아니라 다양한 노드(컴포넌트)가 수집한 데이터를 pull방식으로 가져오는 구조이다. 여기서 node는 프로메테우스에"><meta property="og:type" content="blog"><meta property="og:title" content="모니터링 시스템(Prometheus, Grafana)(2)"><meta property="og:url" content="http://example.com/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-2/"><meta property="og:site_name" content="Yoonho의 블로그"><meta property="og:description" content="프로메테우스와 그라파나의 전체적인 아키텍처 및 설치과정을 알아보도록 하자 프로메테우스&amp;#x2F;그라파나 아키텍쳐지난 게시물에서도 말했듯이 프로메테우스는 데이터소스, 그라파나는 시각화 툴의 역할을 각각 맡고 있다. 또한 프로메테우스는 서버 뿐만 아니라 다양한 노드(컴포넌트)가 수집한 데이터를 pull방식으로 가져오는 구조이다. 여기서 node는 프로메테우스에"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://example.com/post_images/prometheus/prom3.png"><meta property="og:image" content="http://example.com/post_images/prometheus/prom4.png"><meta property="og:image" content="http://example.com/post_images/prometheus/prom5.png"><meta property="og:image" content="http://example.com/post_images/prometheus/prom6.png"><meta property="og:image" content="http://example.com/post_images/prometheus/prom7.png"><meta property="article:published_time" content="2022-03-29T01:06:03.000Z"><meta property="article:modified_time" content="2022-03-29T04:49:49.437Z"><meta property="article:author" content="SeoYoonho"><meta property="article:tag" content="STIS"><meta property="article:tag" content="모니터링 시스템"><meta property="article:tag" content="Prometheus"><meta property="article:tag" content="Grafana"><meta property="article:tag" content="Expoter"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/post_images/prometheus/prom3.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-2/"},"headline":"모니터링 시스템(Prometheus, Grafana)(2)","image":["http://example.com/post_images/prometheus/prom3.png","http://example.com/post_images/prometheus/prom4.png","http://example.com/post_images/prometheus/prom5.png","http://example.com/post_images/prometheus/prom6.png","http://example.com/post_images/prometheus/prom7.png"],"datePublished":"2022-03-29T01:06:03.000Z","dateModified":"2022-03-29T04:49:49.437Z","author":{"@type":"Person","name":"SeoYoonho"},"publisher":{"@type":"Organization","name":"Yoonho의 블로그","logo":{"@type":"ImageObject"}},"description":"프로메테우스와 그라파나의 전체적인 아키텍처 및 설치과정을 알아보도록 하자 프로메테우스&#x2F;그라파나 아키텍쳐지난 게시물에서도 말했듯이 프로메테우스는 데이터소스, 그라파나는 시각화 툴의 역할을 각각 맡고 있다. 또한 프로메테우스는 서버 뿐만 아니라 다양한 노드(컴포넌트)가 수집한 데이터를 pull방식으로 가져오는 구조이다. 여기서 node는 프로메테우스에"}</script><link rel="canonical" href="http://example.com/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-2/"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Yoonho의 블로그</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-9-tablet is-9-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-03-29T01:06:03.000Z" title="2022-3-29 10:06:03">2022-03-29</time></span><span class="level-item"><a class="link-muted" href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/">모니터링</a><span> / </span><a class="link-muted" href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/Prometheus-Grafana/">Prometheus/Grafana</a></span></div></div><h1 class="title is-3 is-size-4-mobile">모니터링 시스템(Prometheus, Grafana)(2)</h1><div class="content"><p>프로메테우스와 그라파나의 전체적인 아키텍처 및 설치과정을 알아보도록 하자</p>
+<h3 id="프로메테우스-x2F-그라파나-아키텍쳐"><a href="#프로메테우스-x2F-그라파나-아키텍쳐" class="headerlink" title="프로메테우스&#x2F;그라파나 아키텍쳐"></a><strong>프로메테우스&#x2F;그라파나 아키텍쳐</strong></h3><p>지난 게시물에서도 말했듯이 프로메테우스는 데이터소스, 그라파나는 시각화 툴의 역할을 각각 맡고 있다. 또한 프로메테우스는 서버 뿐만 아니라 다양한 노드(컴포넌트)가 수집한 데이터를 pull방식으로 가져오는 구조이다. 여기서 node는 프로메테우스에서 제공하는 서비스일 수도 있고 사용자가 직접 커스텀한 Exporter일수도 있다.<br>그 구조는 아래와 같다.</p>
+<p><img src="/post_images/prometheus/prom3.png" alt="프로메테우스 아키텍처"></p>
+<span id="more"></span>
+
+<p>프로메테우스를 구성하는 컴포넌트들은 다음과 같다</p>
+<ul>
+<li><strong>Prometheus Server</strong><br>데이터를 수집하고 저장하는 메인서버</li>
+<li><strong>Exporter</strong><br>target metric 데이터 수집<br>Http 엔드포인트를 설정하여 서버에서 메트릭을 수집하도록 지원<br>HAProxy, StatsD, Graphite와 같은 서비스를 지원</li>
+<li><strong>AlertManager</strong><br>설정한 규칙에 따른 알림 처리(Grafana 자체적으로 알람시스템을 가지고 있어 사용하지 않았음)</li>
+<li><strong>PushGateway</strong><br>Exporter를 이용하여 수집이 어려운 작업에 대한 매트릭 pushing 지원</li>
+<li><strong>Grafana</strong><br>시각화 툴</li>
+<li><strong>Client Libraries</strong><br>Java, Scala, Go, Python, Ruby 등의 언어에 대한 프로메테우 연동 라이브러리</li>
+</ul>
+<p>현재 운영중인 모니터링 시스템의 경우 대부분은 Exporter로 데이터를 가져오고 있고, 알람은 Grafana의 알람체계를 사용하고 있다. <strong>결국 Exporter를 각 시스템에 맞게 잘 구현하는것이 모니터링 시스템 구축의 핵심</strong>이라 할 수 있다.</p>
+<h3 id="프로메테우스-설치"><a href="#프로메테우스-설치" class="headerlink" title="프로메테우스 설치"></a><strong>프로메테우스 설치</strong></h3><h4 id="압축파일-다운로드"><a href="#압축파일-다운로드" class="headerlink" title="압축파일 다운로드"></a><strong>압축파일 다운로드</strong></h4><p>현재 우리 서버에 설치된 버전은 2.19.0 버전이다</p>
+<blockquote><p>$ wget <a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/releases/download/v2.19.0/prometheus-2.19.0.linux-amd64.tar.gz">https://github.com/prometheus/prometheus/releases/download/v2.19.0/prometheus-2.19.0.linux-amd64.tar.gz</a></p>
+<p>$ tar xvfz prometheus-2.19.0.linux-amd64.tar.gz<br>$ cd prometheus-2.19.0.linux-amd64</p>
+</blockquote>
+
+<p>파일을 받은 후 압축까지 해제하여줍니다. 압축 해제후 설치과정은 따로 필요없습니다. 바로 prometheus 바이너리 파일이 실행 프로그램입니다.</p>
+<h4 id="설정파일"><a href="#설정파일" class="headerlink" title="설정파일"></a><strong>설정파일</strong></h4><p>설치된 폴더안에 prometheus.yml라는 YAML파일이 있습니다.</p>
+<blockquote><p># my global config<br>global:<br>scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.<br>evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.<br># scrape_timeout is set to the global default (10s).</p>
+<p># Alertmanager configuration<br>alerting:<br>alertmanagers:</p>
+<ul>
+<li>static_configs:</li>
+<li>targets:<br># - alertmanager:9093</li>
+</ul>
+<p># Load rules once and periodically evaluate them according to the global ‘evaluation_interval’.<br>rule_files:<br># - “first_rules.yml”<br># - “second_rules.yml”</p>
+<p># A scrape configuration containing exactly one endpoint to scrape:<br># Here it’s Prometheus itself.<br>scrape_configs:<br># The job name is added as a label <code>job=&lt;job_name&gt;</code> to any timeseries scraped from this config.</p>
+<ul>
+<li>job_name: ‘prometheus’</li>
+</ul>
+<p># metrics_path defaults to ‘&#x2F;metrics’<br># scheme defaults to ‘http’.</p>
+<p>static_configs:</p>
+<ul>
+<li>targets: [‘localhost:9090’]</li>
+</ul>
+</blockquote>
+
+<ul>
+<li><p><strong>global</strong><br>Prometheus의 전반적인 부분에 대한 설정</p>
+<ul>
+<li>scrap_interval : 정보를 수집하는 주기를 설정</li>
+<li>evalutaion_interval : 시계열을 만들고 알람을 발생시키는 주기를 설정</li>
+</ul>
+</li>
+<li><p><strong>rule_files</strong><br>Prometheus 에서 불러올 rules 파일에 대한 경로를 지정하는 설정</p>
+</li>
+<li><p><strong>scrape_configs</strong><br>Prometheus에서 어떤 자원을 모니터링할지 설정<br>기본값으로 ‘prometheus’이 지정되어있는데 Prometheus 프로그램에서 발생된 시계열데이터를 수집<br>결국 이 설정값에 exporter를 연결시켜 데이터를 수집하므로 주된 설정값임</p>
+</li>
+</ul>
+<h4 id="프로메테우스-실행"><a href="#프로메테우스-실행" class="headerlink" title="프로메테우스 실행"></a><strong>프로메테우스 실행</strong></h4><p>실행시에는 설정파일을 지정해줘야 한다.</p>
+<blockquote><p>$ .&#x2F;prometheus –config.file&#x3D;prometheus.yml</p>
+</blockquote>
+
+<p>실행을 확인하귀 위해 브라우저를 열어 <strong><a target="_blank" rel="noopener" href="http://localhost:9090/">http://localhost:9090</a></strong> 으로 접속하면 프로메테우스 UI 화면이 나타난다.</p>
+<p><img src="/post_images/prometheus/prom4.png" alt="프로메테우스 UI"></p>
+<p>또한 프로메테우스가 어떤 메트릭 정보들을 제공하는지 확인하고 싶다면 <strong><a target="_blank" rel="noopener" href="http://localhost:9090/metrics">http://localhost:9090/metrics</a></strong> 경로에서 확인할 수 있다.</p>
+<p><img src="/post_images/prometheus/prom5.png" alt="프로메테우스 Metric"></p>
+<p>위의 정보들은 실제로 운영중인 시스템의 모니터링 metric 값들이다. 해당 값들을 프로메테우스에 제공하기 위한 node exporter에 관한 이야기를 해보자</p>
+<h3 id="Custom-Node-Exporter"><a href="#Custom-Node-Exporter" class="headerlink" title="Custom Node Exporter"></a><strong>Custom Node Exporter</strong></h3><p>Prometheus에서 제공되는 오픈소스 프로그램중 Node Exporter라는 것이 있다. Node Exporter의 종류는 굉장히 다양하고 Oracle, Mysql 등 DB에서 쿼리만 제공하면 데이터를 추출해주는 Exporter도 존재한다. 관련 Exporter는 공식 프로메테우스 공식 홈페이지를 통해 링크가 제공되니 참고해보기 바란다.</p>
+<p><img src="/post_images/prometheus/prom6.png" alt="Node Exporter"></p>
+<p>하지만 우리 시스템에서는 좀 더 커스텀된 데이터 가공이 필요하였고 결국 커스텀 Exporter를 만들기로 결정하였다. 어짜피 방식은 HTTP(REST) 방식이면 되니 개발은 간단하였다. 우리가 선택한 기술은 aws lambda 였고 이를 위해 serverless framework를 사용하여 exporter를 개발하였다.</p>
+<p>Serverless Framework과 lambda에 대해서는 추후에 더 자세하게 다뤄보도록 하겠다.<br>api 구현방식이 중요한것이 아니라 프로메테우스가 원하는 metric 포맷으로 데이터를 리턴해주는 api가 존재하기만 하면 된다. api를 개발하는 방식은 굉장히 여러가지이니 개발자 재량껏 편한 방식으로 개발하면 된다.</p>
+<p>Lambda 언어는 node js를 선택하였고 프로메테우스 metric 데이터 형식으로 변환하기위해 ‘prom-client’ 를 패키지 관리자를 통해 설치하여 간편하게 metric 데이터 포맷으로 변환하였다.</p>
+<p>해당 소스는 다음과 같다</p>
+<p><img src="/post_images/prometheus/prom7.png" alt="Custom Exporter"></p>
+<p>소스 일부분만 가져왔지만 내용을 보면 sql라는 설정파일에 쿼리를 작성하면 원하는 내용으로 metric 데이터로 변환하여 준다. 위으 소스에서는 데이터를 Guage 형태로 가져왔는데 프로메테우스의 Metric 데이터 타입은 4가지로 나눠진다.</p>
+<ol>
+<li>Counter</li>
+<li>Guague</li>
+<li>Histogram</li>
+<li>Summary</li>
+</ol>
+<p>해당 타입별 정의와 쓰임새는 공식홈페이지를 참고하기 바란다.(<a target="_blank" rel="noopener" href="https://prometheus.io/docs/instrumenting/exporters/">https://prometheus.io/docs/instrumenting/exporters/</a>)</p>
+<p>어쨌든 이런식으로 개발된 api의 엔드포인트를 prometheus.yml에 설정하여주면 위에서 보여준것과 같이 metric 데이터가 수집된다. 이제는 해당 데이터를 Grafana를 통해 시각화 해주면 된다.<br>이에 대한 내용은 다음 포스트에서 다뤄보기로 한다.</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>모니터링 시스템(Prometheus, Grafana)(2)</p><p><a href="http://example.com/2022/03/29/모니터링-시스템-Prometheus-Grafana-2/">http://example.com/2022/03/29/모니터링-시스템-Prometheus-Grafana-2/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>SeoYoonho</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2022-03-29</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2022-03-29</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/STIS/">STIS</a><a class="link-muted mr-2" rel="tag" href="/tags/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C/">모니터링 시스템</a><a class="link-muted mr-2" rel="tag" href="/tags/Prometheus/">Prometheus</a><a class="link-muted mr-2" rel="tag" href="/tags/Grafana/">Grafana</a><a class="link-muted mr-2" rel="tag" href="/tags/Expoter/">Expoter</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/"><span class="level-item">모니터링 시스템(Prometheus, Grafana)(1)</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="disqus_thread"><noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div><script>var disqus_config = function () {
+            this.page.url = 'http://example.com/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-2/';
+            this.page.identifier = '2022/03/29/모니터링-시스템-Prometheus-Grafana-2/';
+        };
+        (function() {
+            var d = document, s = d.createElement('script');  
+            s.src = '//' + 'seoyoonho' + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();</script></div></div></div><!--!--><div class="column column-right is-3-tablet is-3-desktop is-3-widescreen  order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#프로메테우스-x2F-그라파나-아키텍쳐"><span class="level-left"><span class="level-item">1</span><span class="level-item">프로메테우스/그라파나 아키텍쳐</span></span></a></li><li><a class="level is-mobile" href="#프로메테우스-설치"><span class="level-left"><span class="level-item">2</span><span class="level-item">프로메테우스 설치</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#압축파일-다운로드"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">압축파일 다운로드</span></span></a></li><li><a class="level is-mobile" href="#설정파일"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">설정파일</span></span></a></li><li><a class="level is-mobile" href="#프로메테우스-실행"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">프로메테우스 실행</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Custom-Node-Exporter"><span class="level-left"><span class="level-item">3</span><span class="level-item">Custom Node Exporter</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AWS/"><span class="level-start"><span class="level-item">AWS</span></span><span class="level-end"><span class="level-item tag">1</span></span></a><ul><li><a class="level is-mobile" href="/categories/AWS/Kinesis/"><span class="level-start"><span class="level-item">Kinesis</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/CS/"><span class="level-start"><span class="level-item">CS</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/CS/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/"><span class="level-start"><span class="level-item">DB 트랜잭션</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/CS/RESTful-API/"><span class="level-start"><span class="level-item">RESTful API</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/CS/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-5%EC%9B%90%EC%B9%99-SOLID/"><span class="level-start"><span class="level-item">객체지향 5원칙(SOLID)</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/"><span class="level-start"><span class="level-item">모니터링</span></span><span class="level-end"><span class="level-item tag">2</span></span></a><ul><li><a class="level is-mobile" href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/Prometheus-Grafana/"><span class="level-start"><span class="level-item">Prometheus/Grafana</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/%EC%97%B0%EC%8A%B5/"><span class="level-start"><span class="level-item">연습</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-29T01:06:03.000Z">2022-03-29</time></p><p class="title"><a href="/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-2/">모니터링 시스템(Prometheus, Grafana)(2)</a></p><p class="categories"><a href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/">모니터링</a> / <a href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/Prometheus-Grafana/">Prometheus/Grafana</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-28T05:36:32.000Z">2022-03-28</time></p><p class="title"><a href="/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/">모니터링 시스템(Prometheus, Grafana)(1)</a></p><p class="categories"><a href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/">모니터링</a> / <a href="/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/Prometheus-Grafana/">Prometheus/Grafana</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-26T12:56:34.000Z">2022-03-26</time></p><p class="title"><a href="/2022/03/26/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/">DB 트랜잭션</a></p><p class="categories"><a href="/categories/CS/">CS</a> / <a href="/categories/CS/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/">DB 트랜잭션</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-26T10:04:21.000Z">2022-03-26</time></p><p class="title"><a href="/2022/03/26/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-5%EC%9B%90%EC%B9%99-SOLID/">객체지향 5원칙(SOLID)</a></p><p class="categories"><a href="/categories/CS/">CS</a> / <a href="/categories/CS/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-5%EC%9B%90%EC%B9%99-SOLID/">객체지향 5원칙(SOLID)</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-03-25T16:12:53.000Z">2022-03-26</time></p><p class="title"><a href="/2022/03/26/RESTful-API/">RESTful API</a></p><p class="categories"><a href="/categories/CS/">CS</a> / <a href="/categories/CS/RESTful-API/">RESTful API</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">Yoonho의 블로그</a><p class="is-size-7"><span>&copy; 2022 SeoYoonho</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
