@@ -2,14 +2,14 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
     <url>
-        <loc>http://example.com/</loc>
+        <loc>https://seoyoonho.github.io/</loc>
         <changefreq>daily</changefreq>
         <priority>1</priority>
     </url>
 
 
     <url>
-        <loc>http://example.com/2022/04/19/Spring-Framework%EB%9E%80/</loc>
+        <loc>https://seoyoonho.github.io/2022/04/19/Spring-Framework%EB%9E%80/</loc>
         <lastmod>2022-04-21T03:45:04.190Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -17,7 +17,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/04/09/Spring-Batch/</loc>
+        <loc>https://seoyoonho.github.io/2022/04/09/Spring-Batch/</loc>
         <lastmod>2022-04-11T12:07:30.834Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -25,7 +25,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/04/06/JDBC-%ED%83%80%EC%9E%84%EC%95%84%EC%9B%83/</loc>
+        <loc>https://seoyoonho.github.io/2022/04/06/JDBC-%ED%83%80%EC%9E%84%EC%95%84%EC%9B%83/</loc>
         <lastmod>2022-04-07T05:52:07.780Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -33,7 +33,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-3/</loc>
+        <loc>https://seoyoonho.github.io/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-3/</loc>
         <lastmod>2022-03-29T07:32:59.935Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -41,7 +41,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-2/</loc>
+        <loc>https://seoyoonho.github.io/2022/03/29/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana-2/</loc>
         <lastmod>2022-03-29T04:49:49.437Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -49,7 +49,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/</loc>
+        <loc>https://seoyoonho.github.io/2022/03/28/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-Prometheus-Grafana/</loc>
         <lastmod>2022-03-28T08:27:01.892Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -57,7 +57,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/03/25/kinesis-%EC%A4%91%EB%B3%B5%EB%A0%88%EC%BD%94%EB%93%9C-%EC%B2%98%EB%A6%AC-atleast-once/</loc>
+        <loc>https://seoyoonho.github.io/2022/03/25/kinesis-%EC%A4%91%EB%B3%B5%EB%A0%88%EC%BD%94%EB%93%9C-%EC%B2%98%EB%A6%AC-atleast-once/</loc>
         <lastmod>2022-03-28T02:45:21.002Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -65,7 +65,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/03/26/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/</loc>
+        <loc>https://seoyoonho.github.io/2022/03/26/DB-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98/</loc>
         <lastmod>2022-03-26T16:39:09.227Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -73,7 +73,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/03/26/RESTful-API/</loc>
+        <loc>https://seoyoonho.github.io/2022/03/26/RESTful-API/</loc>
         <lastmod>2022-03-26T13:17:47.808Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -81,7 +81,7 @@
     </url>
 
     <url>
-        <loc>http://example.com/2022/03/26/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-5%EC%9B%90%EC%B9%99-SOLID/</loc>
+        <loc>https://seoyoonho.github.io/2022/03/26/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-5%EC%9B%90%EC%B9%99-SOLID/</loc>
         <lastmod>2022-03-26T11:47:08.387Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
