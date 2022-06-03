@@ -9,8 +9,45 @@
     <atom:link href="https://seoyoonho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description></description>
-    <pubDate>Fri, 03 Jun 2022 01:24:46 GMT</pubDate>
+    <pubDate>Fri, 03 Jun 2022 02:57:33 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>모니터링 시스템 장애(2) - node-oraclelib 버전 호환성</title>
+      <link>https://seoyoonho.github.io/2022/06/03/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EC%9E%A5%EC%95%A0-2-node-oraclelib-%EB%B2%84%EC%A0%84-%ED%98%B8%ED%99%98%EC%84%B1/</link>
+      <guid>https://seoyoonho.github.io/2022/06/03/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EC%9E%A5%EC%95%A0-2-node-oraclelib-%EB%B2%84%EC%A0%84-%ED%98%B8%ED%99%98%EC%84%B1/</guid>
+      <pubDate>Fri, 03 Jun 2022 02:44:32 GMT</pubDate>
+      
+      <description>&lt;p&gt;지난 포스팅에서 언급한것처럼 오늘은 nodejs 버전 업그레이드 과정에서 생긴 모니터링 시스템 장애에 대해서 말해보고자 한다.&lt;/p&gt;</description>
+      
+      
+      
+      <content:encoded><![CDATA[<p>지난 포스팅에서 언급한것처럼 오늘은 nodejs 버전 업그레이드 과정에서 생긴 모니터링 시스템 장애에 대해서 말해보고자 한다.</p><span id="more"></span><h3 id="Serverless-Framework-nodejs-버전-업그레이드"><a href="#Serverless-Framework-nodejs-버전-업그레이드" class="headerlink" title="Serverless Framework nodejs 버전 업그레이드"></a><strong>Serverless Framework nodejs 버전 업그레이드</strong></h3><p>Serverless Framework에서 nodejs 버전업그레이드는 정말 간편하다. serverless.yml 파일의 provider 의 runtime만 nodejs14.x로 변경해주면 된다. 이렇게만 설정해주면 해당 yml을 참고하는 모든 lambda의 nodejs 버전이 업그레이드 된다. 이 간편함때문에 내가 serverless framework를 즐겨쓴다.</p><p>이번 nodejs 버전 업그레이드는 위에서 설명한것처럼 간단하게 진행되었다. 버전 명시후 재배포를 진행하였고 문제없이 배포되었다. 하지만 약 1분뒤 lambda를 사용하는 모든 모니터링에서 알람이 울리기 시작했다. 바로 망했다는 생각이 들었고 수많은 lambda 중 하나를 골라 CloudWatch상의 로그를 보기 시작하였다.</p><center><img src="/post_images/monitoring/oraclelib_error.png"></center><h3 id="라이브러리-버전-호환성"><a href="#라이브러리-버전-호환성" class="headerlink" title="라이브러리 버전 호환성"></a><strong>라이브러리 버전 호환성</strong></h3><p>위와 같은 로그가 보이기 시작하였다. 바뀐게 없는데 왜 저런 오류가 날까 한참을 고민하다 사용하던 oracle lib 버전이 현재 nodejs와 호환이 되지 않을수 있다는 생각이 들었다.</p><center><img src="/post_images/monitoring/oraclelib_version.png"></center><p>예상대로 현재 사용되는 버전은 4년전에 사용되던 버전이었고 최신버전으로 업그레이드 이후 다시 재배포하였다. 이후 모든 수치들은 정상으로 돌아오게 되었다.</p><h3 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a><strong>마치며</strong></h3><p>다행히 모든 모니터링 수치는 정상으로 돌아왔지만, 문제가 생긴 1시간정도 정말 식은땀을 흘렸던거 같다. 이번 경험을 통해 느낀바는 두가지이다.</p><ol><li>AWS의 기술 지원 기간을 잘 확인해야 한다는 점</li><li>버전 업그레이드시에는 각 라이브러리와의 호환성 체크가 필수라는 점</li></ol><p>이렇게 또 한번의 경험을 통해 성장하는 계기가 되었다.</p>]]></content:encoded>
+      
+      
+      <category domain="https://seoyoonho.github.io/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/">모니터링</category>
+      
+      <category domain="https://seoyoonho.github.io/categories/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/Prometheus-Grafana/">Prometheus/Grafana</category>
+      
+      
+      <category domain="https://seoyoonho.github.io/tags/STIS/">STIS</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C/">모니터링 시스템</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Prometheus/">Prometheus</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Grafana/">Grafana</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Expoter/">Expoter</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/AWS-lambda/">AWS lambda</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/nodejs/">nodejs</category>
+      
+      
+      <comments>https://seoyoonho.github.io/2022/06/03/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EC%9E%A5%EC%95%A0-2-node-oraclelib-%EB%B2%84%EC%A0%84-%ED%98%B8%ED%99%98%EC%84%B1/#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>모니터링 시스템 장애(1) - AWS Lambda 런타임 지원기한</title>
