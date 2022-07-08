@@ -9,13 +9,13 @@
     <atom:link href="https://seoyoonho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description></description>
-    <pubDate>Fri, 08 Jul 2022 08:12:30 GMT</pubDate>
+    <pubDate>Fri, 08 Jul 2022 08:17:40 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
-      <title>AWS Lambda를 이용한 Restful API서비스 개발</title>
-      <link>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C/</link>
-      <guid>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C/</guid>
+      <title>AWS Lambda를 이용한 Restful API서비스 개발(1)</title>
+      <link>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C(1)/</link>
+      <guid>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C(1)/</guid>
       <pubDate>Thu, 07 Jul 2022 14:06:00 GMT</pubDate>
       
       <description>&lt;p&gt;최근 회사에서 Kafka와 Lambda를 이용한 서비스개발에 착수하게 되었다. 기존에 Lambda를 이용한 api개발 경험이 있었기에 큰 어려움 없이 구상을 할 수 있었지만, 본격적으로 진행하기 전에 lambda와 serverless에 대해 내용을 정리해보고자 한다.&lt;/p&gt;</description>
@@ -41,7 +41,7 @@
       <category domain="https://seoyoonho.github.io/tags/Restful-api/">Restful api</category>
       
       
-      <comments>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C/#disqus_thread</comments>
+      <comments>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C(1)/#disqus_thread</comments>
       
     </item>
     
