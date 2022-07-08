@@ -9,8 +9,75 @@
     <atom:link href="https://seoyoonho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description></description>
-    <pubDate>Fri, 03 Jun 2022 02:57:33 GMT</pubDate>
+    <pubDate>Fri, 08 Jul 2022 08:12:30 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>AWS Lambda를 이용한 Restful API서비스 개발</title>
+      <link>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C/</link>
+      <guid>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C/</guid>
+      <pubDate>Thu, 07 Jul 2022 14:06:00 GMT</pubDate>
+      
+      <description>&lt;p&gt;최근 회사에서 Kafka와 Lambda를 이용한 서비스개발에 착수하게 되었다. 기존에 Lambda를 이용한 api개발 경험이 있었기에 큰 어려움 없이 구상을 할 수 있었지만, 본격적으로 진행하기 전에 lambda와 serverless에 대해 내용을 정리해보고자 한다.&lt;/p&gt;</description>
+      
+      
+      
+      <content:encoded><![CDATA[<p>최근 회사에서 Kafka와 Lambda를 이용한 서비스개발에 착수하게 되었다. 기존에 Lambda를 이용한 api개발 경험이 있었기에 큰 어려움 없이 구상을 할 수 있었지만, 본격적으로 진행하기 전에 lambda와 serverless에 대해 내용을 정리해보고자 한다.</p><span id="more"></span><h3 id="AWS-Lambda란"><a href="#AWS-Lambda란" class="headerlink" title="AWS Lambda란?"></a><strong>AWS Lambda란?</strong></h3><p>AWS 람다는 2014년 11월 AWS re:Invent에서 처음 발표된 AWS에서 제공되는 서버리스 컴퓨팅 서비스이다. Serverless란 별도의 서버 셋업 없이 곧바로 코드를 실행해주는 서비스이다. Serverless라는 단어를 오해해서 실제 서버가 없는것으로 오해하는데 진정한 의미는 개발자가 직접 관리해야하는 서버가 없다는 뜻이다. 다시 말하자면 보이지 않는 곳에서 관리형 서버(추상화된 서버)가 따로 존재하고, 필요에 따라 자동으로 Scale up 되거나 Scale down된다.</p><h3 id="Lambda-언어"><a href="#Lambda-언어" class="headerlink" title="Lambda 언어"></a><strong>Lambda 언어</strong></h3><p>AWS에서는 C#, 파워셀, GO, Java, JavaScript, Python, Ruby등을 네이티브하게 지원하고 있다. 각각의 런타임별로 지원시기가 정해져있고, 지원기간이 종료되면 더이상 사용할 수가 없다. 지원 종료시기에 대해서 미리 파악하고 버전 업그레이드를 해주는게 중요하다. 우선 우리가 사용할 런타임은 node js이고 Node.js의 런타임은 지원은 다음과 같다.</p><center><img src="/post_images/lambda/runtime.png"></center><h3 id="Lambda-함수트리거"><a href="#Lambda-함수트리거" class="headerlink" title="Lambda 함수트리거"></a><strong>Lambda 함수트리거</strong></h3><p>람다는 특정 이벤트를 기반으로 요청받은 그 즉시 실행된다. API Gateway나 애플리케이션 로드밸런서가 받은 요청을 기반으로 실행할 수도 있으며, AWS의 다양한 서비스와 연동할 수 있다. 현재 진행중인 프로젝트의 경우 API Gateway와 연동하여 Restful API의 개발과, 카프카와 연동한 개발이 진행될 예정이다.</p><h3 id="Lambda-과금체계"><a href="#Lambda-과금체계" class="headerlink" title="Lambda 과금체계"></a><strong>Lambda 과금체계</strong></h3><p>Lambda를 사용하는 이점은 서버를 관리해주지 않아도 된다는점, 그리고 저렴한 비용이 있다. 하지만 상황에 따라 Lambda보다 ec2 인스턴스위에서 서비스를 제공하는게 저렴할 수 있으니, Lambda에 대한 과금체계를 잘 이해하여 선택해야한다.</p><p>우선 Lambda는 두가지 요소로 과금한다.</p><ol><li>함수 요청 건수</li><li>함수 실행 시간</li></ol><p>두 요소에서 발생된 금액을(건수요금 + 실행시간요금) 합쳐 과금이 되는 것이다. 예를 들어 프리티어가 포함된 AWS계정으로 미국 동부(버지니아 북부) 리전에서 람다를 수행하는 경우, 함수에 512MB 메모리를 할당하고 한달에 3백만회 실행시 매번 1초간 실행하였다면 과금 체계는 다음과 같다.</p><ol><li>컴퓨팅 요금<br>월별 컴퓨팅 요금은 GB-초당 0.00001667USD이고 프리티어에서 400,000GB-초를 제공.<br>총 컴퓨팅(초) &#x3D; 300만회 * 1초 &#x3D; 3,000,000초<br>총 컴퓨팅(GB-초) &#x3D; 3,000,000 &#x2F; 2 &#x3D; 1,500,000GB-초<br>(가격테이블 기준, 메모리를 1&#x2F;2만 사용하였으므로 컴퓨팅 시간을 1&#x2F;2로 계산해줌)</li></ol><p>프리티어 제공 빼줌<br>1,5000,000GB-초 - 400,000GB-초 &#x3D; 1,100,000GB-초<br>월별 컴퓨팅 요금 &#x3D; 1,100,000 * 0.00001667USD &#x3D; 18.34USD;</p><ol start="2"><li><p>요청 요금<br>프리티어 기준 1백만회 무상제공 -&gt; 2백만회 과금<br>월별 요청 요금 &#x3D; 2 * 0.2USD&#x2F;월 &#x3D; 0.4USD</p></li><li><p>총 요금 &#x3D; 1) + 2) &#x3D; 18.74USD</p></li></ol><h3 id="Lambda-VS-EC2"><a href="#Lambda-VS-EC2" class="headerlink" title="Lambda VS EC2"></a><strong>Lambda VS EC2</strong></h3><p>위에서 보다시피 람다는 순수하게 사용시간,요청건수에 의해 과금을 한다. 그래서 EC2와 비교했을 떄 효율적으로 자원을 사용할 수 있지만, 건수나 시간이 많아질 경우 오히려 더 비싸지는 경우가 발생할 수 있다. 다음은 두가지 시나리오에 따른 EC2와 Lambda의 과금을 비교한 표이다.</p><center><img src="/post_images/lambda/runtime.png"></center><ol><li><p>애플리케이션이 하루에 5,000회 실행되며, 각 실행이 512MB의 메모리 사이즈로 100ms가 소요된다고 가정한다. 이 때의 Lambda 함수의 비용은 0.16달러가 된다. 같은 요구 사항에 대해 t2.nano EC2 인스턴스를 사용한다면, 비용은 약 월 4.25달러이다.<br>단순한 예시이지만, 이때는 람다 가격이 EC2 가격의 4%에 불과하다는 것을 알 수 있다.</p></li><li><p>두 번째 시나리오를 예로 들어 보자. 한 달에 500만번 실행되는 1GB Lambda 함수는 평균 200ms가 소요된다. 이때의 비용은 17.67달러이지만, EC2 t3.micro를 사용한다면 비용은 7.62달러밖에 들지 않을 것다. 따라서 이 경우, 메모리&#x2F;요청&#x2F;실행시간이 많이 요구되기 때문에 오히려 EC2가 람다보다 저렴한 솔루션이 될 수 있다.</p></li></ol><h3 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a><strong>마치며</strong></h3><p>오늘은 AWS의 Lambda에 대해 알아보는 시간을 가졌다. 다음 포스팅에서는 해당 람다를 개발하기 위한 환경으로써 Serverless Framework에 대해 알아보도록 하겠다.</p><p>출처:</p><ul><li><a href="https://www.44bits.io/ko/keyword/aws-lambda">https://www.44bits.io/ko/keyword/aws-lambda</a></li><li><a href="https://sa-na.tistory.com/entry/AWS-%EB%B9%84%EC%9A%A9%EC%A4%84%EC%9D%B4%EA%B8%B0-7-Serverless-%EC%86%94%EB%A3%A8%EC%85%98-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-AWS-Lambda">https://sa-na.tistory.com/entry/AWS-%EB%B9%84%EC%9A%A9%EC%A4%84%EC%9D%B4%EA%B8%B0-7-Serverless-%EC%86%94%EB%A3%A8%EC%85%98-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-AWS-Lambda</a></li><li><a href="https://blog.naver.com/PostView.naver?blogId=sehyunfa&amp;logNo=222343068462&amp;redirect=Dlog&amp;widgetTypeCall=true&amp;directAccess=false">https://blog.naver.com/PostView.naver?blogId=sehyunfa&amp;logNo=222343068462&amp;redirect=Dlog&amp;widgetTypeCall=true&amp;directAccess=false</a></li></ul>]]></content:encoded>
+      
+      
+      <category domain="https://seoyoonho.github.io/categories/AWS/">AWS</category>
+      
+      <category domain="https://seoyoonho.github.io/categories/AWS/Lambda/">Lambda</category>
+      
+      
+      <category domain="https://seoyoonho.github.io/tags/AWS/">AWS</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Serverless/">Serverless</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/API-Gateway/">API Gateway</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Lambda/">Lambda</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Restful-api/">Restful api</category>
+      
+      
+      <comments>https://seoyoonho.github.io/2022/07/07/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>Spring MVC</title>
+      <link>https://seoyoonho.github.io/2022/06/13/Spring-MVC/</link>
+      <guid>https://seoyoonho.github.io/2022/06/13/Spring-MVC/</guid>
+      <pubDate>Mon, 13 Jun 2022 13:19:23 GMT</pubDate>
+      
+      <description>&lt;p&gt;최근 회사에서 SI프로젝트 지원을 나가게 되었다. 해당 프로젝트에서 사용하는 프레임워크가 Spring MVC였다. 해당 패턴에 대하여 다시한번 리마인드도 해볼겸 대부분의 웹 개발에 있어서 표준처럼 쓰이는 MVC 디자인 패턴에 대해 알아고보, 나아가 Spring MVC의 처리 과정까지 알아보도록 하겠다.&lt;/p&gt;
+&lt;h3 id=&quot;MVC-패턴이란&quot;&gt;&lt;a href=&quot;#MVC-패턴이란&quot; class=&quot;headerlink&quot; title=&quot;MVC 패턴이란?&quot;&gt;&lt;/a&gt;&lt;strong&gt;MVC 패턴이란?&lt;/strong&gt;&lt;/h3&gt;&lt;center&gt;&lt;img src=&quot;/post_images/Spring MVC/mvc.png&quot;&gt;&lt;/center&gt;&lt;br&gt;</description>
+      
+      
+      
+      <content:encoded><![CDATA[<p>최근 회사에서 SI프로젝트 지원을 나가게 되었다. 해당 프로젝트에서 사용하는 프레임워크가 Spring MVC였다. 해당 패턴에 대하여 다시한번 리마인드도 해볼겸 대부분의 웹 개발에 있어서 표준처럼 쓰이는 MVC 디자인 패턴에 대해 알아고보, 나아가 Spring MVC의 처리 과정까지 알아보도록 하겠다.</p><h3 id="MVC-패턴이란"><a href="#MVC-패턴이란" class="headerlink" title="MVC 패턴이란?"></a><strong>MVC 패턴이란?</strong></h3><center><img src="/post_images/Spring MVC/mvc.png"></center><br><span id="more"></span><p>MVC(Model-View-Controller) 패턴은 소프트웨어의 비즈니스 로직과 화면을 구분하는데 중점을 둔 디자인 패턴이다. 각 모델 뷰 컨트롤러는 다음과 같은 특징들을 가지고 있다.</p><h4 id="Model-모델"><a href="#Model-모델" class="headerlink" title="Model(모델)"></a>Model(모델)</h4><p>애플리케이션의 정보, 데이터의 가공을 책임지며 DB와 상호작용하며 비즈니스 로직을 처리하는 모듈, 컴포넌트를 말하며 아래와 같은 규칙을 가지고 있다.</p><ul><li>사용자가 이용하려는 모든 데이터를 가지고 있어야 한다.</li><li>View(뷰) 또는 Controller(컨트롤러)에 대한 어떤 정보도 알 수 없어야 한다</li><li>변경이 일어나면 처리 방법을 구현해야 한다.</li></ul><h4 id="View-뷰"><a href="#View-뷰" class="headerlink" title="View(뷰)"></a>View(뷰)</h4><p>사용자 인터페이스 요소를 뜻하는데, Client에게 보여지는 결과화면을 반환하는 모듈을 말하며 아래와 같은 규칙을 가지고 있다.</p><ul><li>Model(모델)이 가지고 있는 데이터를 저장하면 안된다.</li><li>Model(모델)이나 Controller(컨트롤러)에 대한 정보를 알면 안되며 닪순히 표시해주는 역할을 맡아야 한다.</li><li>변경이 일어나면 처리방법을 구현해야 한다.</li></ul><h4 id="Controller-컨트롤러"><a href="#Controller-컨트롤러" class="headerlink" title="Controller(컨트롤러)"></a>Controller(컨트롤러)</h4><p>Client 요청이 들어왔을 때 그 입력을 처리하고 어떤 로직을 실행시킬 것인지 Model(모델)과 View(뷰)를 연결해주며 제어하는 모듈을 말한다.</p><p>Controller는 아래와 같은 규칙들을 가지고 있다.</p><ul><li>Model(모델) 또는 View(뷰)에 대한 정보를 알아야 한다.</li><li>Model(모델) 또는 View(뷰)의 변경을 인지하여 대처를 해야한다.</li></ul><h3 id="MVC-패턴-사용이유"><a href="#MVC-패턴-사용이유" class="headerlink" title="MVC 패턴 사용이유"></a><strong>MVC 패턴 사용이유</strong></h3><p>MVC 패턴의 사용목적이자 장점은 각 컴포넌트들이 서로 분리되어 자신의 역할에만 집중할 수 있게끔 개발을 하고 그렇게 만들어진 애플리케이션은 유지보수성, 확장성, 유연성등이 증가하고 중복코딩이라는 문제점이 사라지도록 한다는 것이다.</p><h3 id="MVC1"><a href="#MVC1" class="headerlink" title="MVC1"></a><strong>MVC1</strong></h3><center><img src="/post_images/Spring MVC/mvc1.jpeg"></center><p>MVC1 패턴은 WAS(Web Application Server)내의 JSP에서 View와 Controller 역할을 모두 담당하는 패턴이다. 아키텍쳐가 간단하기때문에 작은 웹 어플리케이션을 제작할 때는 큰 무리가 없지만 대규모 웹 어플리케이션을 제작하는 경우 가독성이 떨어지고 유지보수에 어려움이 있다.</p><p>이를 보완하기 위해 MVC2 패턴이 등장하게 되었다.</p><h3 id="MVC2"><a href="#MVC2" class="headerlink" title="MVC2"></a><strong>MVC2</strong></h3><center><img src="/post_images/Spring MVC/mvc2.jpg"></center><p>MVC의 단점을 보완하기 위해 View와 Controller가 분리되었고 JSP는 로직 처리가 없는 단순히 Client에게 보여지는 View만을 담당하게 되었다.</p><p>현재의 모든 웹어플리케이션은 MVC2 패턴을 따르고 있고 우리가 알고 있는 Spring MVC 또한 MVC2 패턴을 따르고 있다.</p><h3 id="Spring-MVC"><a href="#Spring-MVC" class="headerlink" title="Spring MVC"></a><strong>Spring MVC</strong></h3><center><img src="/post_images/Spring MVC/SpringMVC.png"></center><p>Spring 진영에서는 MVC2 패턴을 조금 더 발전시켜 Spring MVC 패턴을 선보였다.</p><p>위의 아키텍처에서 각 컴포넌트의 구조와 역할을 간단히 살펴보면, 프론트 컨트롤러가 우선적으로 클라이언트로부터 모든 요청을 받게 되며, 실제 요청의 처리는 개별 컨트롤러 클래스로 위임한다.</p><p>개별 컨트롤러 클래스는 핸들러라고도 하며, DI를 통해 생성해둔 Bean을 이용하여 비즈니스로직 처리 결과를 Model에 담아 다시 프론트 컨트롤러로 보낸다. 프론트 컨트롤러는 받은 Model을 알맞은 View 템플릿으로 전달하여 반영시키고, 최종적으로 클라이언트로 보낼 화면을 응답 결과로 전송한다.</p><h3 id="Spring-MVC-실제-동작구조"><a href="#Spring-MVC-실제-동작구조" class="headerlink" title="Spring MVC 실제 동작구조"></a><strong>Spring MVC 실제 동작구조</strong></h3><center><img src="/post_images/Spring MVC/SpringMVC_Real.png"></center><p>위의 아키텍처는 Spring MVC의 실제 구조를 도식화 한것이다. 각각의 컴포넌트의 역할에 대해서 살펴보자</p><h4 id="Dispatcher-Servlet"><a href="#Dispatcher-Servlet" class="headerlink" title="Dispatcher Servlet"></a>Dispatcher Servlet</h4><ul><li>사용자의 모든 요청을 받아서 처리하는 프론트 컨트롤러이다.</li><li>모든 Request를 각각의 컨트롤러에게 위임한다.</li><li>Dispathcer Servlet을 프론트 컨트롤러가 가능하도록 설정하기 위해서는 web.xml에 명시하거나, org.springframework.web.WebApplicationInitializer 인터페이스를 구현하는 두가지 방식을 사용할 수 있다.</li></ul><h4 id="Handler-Mapping"><a href="#Handler-Mapping" class="headerlink" title="Handler Mapping"></a>Handler Mapping</h4><ul><li>요청을 직접 처리할 컨트롤러를 탐색한다.</li><li>구체적인 mapping은 xm파일이나 java config 관련 어노테이션 등을 통해 처리할 수 있다.</li></ul><h4 id="Handler-Adapter"><a href="#Handler-Adapter" class="headerlink" title="Handler Adapter"></a>Handler Adapter</h4><ul><li>매핑된 컨트롤러의 실행을 요청한다.</li></ul><h4 id="Controller"><a href="#Controller" class="headerlink" title="Controller"></a>Controller</h4><ul><li>직접 요청을 처리하며, 처리 결과를 반환한다.</li><li>컨트롤러에서 결과가 반환되면 Handler Adapter가 ModelAndView 객체로 변환되며, 여기에는 View Name과 같이 응답을 통해 보여줄 View에 대한 정보와 관련된 데이터가 포함되어 있다.</li></ul><h4 id="View-Resolver"><a href="#View-Resolver" class="headerlink" title="View Resolver"></a>View Resolver</h4><ul><li>View Name을 확인한 후, 실제 컨트롤러부터 받은 로직 처리결과를 반영할 View파일(jsp)를 탐색한다.</li></ul><h4 id="View"><a href="#View" class="headerlink" title="View"></a>View</h4><ul><li>로직 처리 결과를 반영한 최종 화면을 생성한다.</li></ul><h3 id="Spring-MVC-동작-순서"><a href="#Spring-MVC-동작-순서" class="headerlink" title="Spring MVC 동작 순서"></a><strong>Spring MVC 동작 순서</strong></h3><ol><li>클라이언트가 서버에 요청을 하면, 프론트 컨트롤러인 DispatcherServlet 클래스가 요청을 받는다.</li><li>DispatcherServlet은 프로젝트 파일 내의 servlet-context.xml 파일의 @Controller 인자를 통해 등록한 요청 위임 컨트롤러를 찾아 매핑(mapping)된 컨트롤러가 존재하면 @RequestMapping을 통해 요청을 처리할 메소드로 이동한다.</li><li>컨트롤러는 해당 요청을 처리할 Service(서비스)를 받아 비즈니스 로직을 서비스에게 위임한다.</li><li>Service(서비스)는 요청에 필요한 작업을 수행하고, 요청에 대해 DB에 접근해야 한다면 DAO에 요청하여 처리를 위임한다.</li><li>DAO는 DB정보를 DTO를 통해 받아 서비스에 전달한다.</li><li>서비스는 전달받은 데이터를 컨트롤러에 전달한다.</li><li>컨트롤러는 Model(모델) 객체에게 요청에 맞는 View(뷰) 정보를 담아 DispatcherServlet에 전송한다.</li><li>DispatcherServlet은 ViewResolver에게 전달받은 View 정보를 전달한다.</li><li>ViewResolver는 응답할 View에 대한 JSP를 찾아 DispatcherServlet에 전달한다.</li><li>DispatcherServlet은 응답할 뷰의 Render를 지시하고 뷰는 로직을 처리한다.</li><li>DispatcherServlet은 클라이언트에게 Rending된 뷰를 응답하며 요청을 마친다.</li></ol><p>출처:</p><ul><li><a href="https://ss-o.tistory.com/160">https://ss-o.tistory.com/160</a></li><li><a href="https://velog.io/@gillog/a-j5c0h49n">https://velog.io/@gillog/a-j5c0h49n</a></li></ul>]]></content:encoded>
+      
+      
+      <category domain="https://seoyoonho.github.io/categories/Spring/">Spring</category>
+      
+      <category domain="https://seoyoonho.github.io/categories/Spring/Spring-MVC/">Spring MVC</category>
+      
+      
+      <category domain="https://seoyoonho.github.io/tags/CS/">CS</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Spring/">Spring</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/MVC/">MVC</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/MVC2/">MVC2</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Spring-MVC/">Spring MVC</category>
+      
+      
+      <comments>https://seoyoonho.github.io/2022/06/13/Spring-MVC/#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>모니터링 시스템 장애(2) - node-oraclelib 버전 호환성</title>
