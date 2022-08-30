@@ -9,6 +9,22 @@
 
 
     <url>
+        <loc>https://seoyoonho.github.io/2022/07/18/DB-%EC%97%94%EC%A7%84-%EC%97%85%EA%B7%B8%EB%A0%88%EC%9D%B4%EB%93%9C%EC%8B%9C-%EC%9C%A0%EC%9D%98%EC%82%AC%ED%95%AD/</loc>
+        <lastmod>2022-08-30T04:37:39.431Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://seoyoonho.github.io/2022/08/30/Netty-Hashed-Wheel-Timer/</loc>
+        <lastmod>2022-08-30T02:50:17.797Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://seoyoonho.github.io/2022/07/12/AWS-Lambda%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Restful-API%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B0%9C%EB%B0%9C-2/</loc>
         <lastmod>2022-07-12T08:03:04.851Z</lastmod>
         <changefreq>weekly</changefreq>

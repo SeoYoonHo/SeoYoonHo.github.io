@@ -9,8 +9,73 @@
     <atom:link href="https://seoyoonho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description></description>
-    <pubDate>Tue, 12 Jul 2022 08:03:04 GMT</pubDate>
+    <pubDate>Tue, 30 Aug 2022 02:50:17 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>Netty Hashed Wheel Timer</title>
+      <link>https://seoyoonho.github.io/2022/08/30/Netty-Hashed-Wheel-Timer/</link>
+      <guid>https://seoyoonho.github.io/2022/08/30/Netty-Hashed-Wheel-Timer/</guid>
+      <pubDate>Tue, 30 Aug 2022 02:06:54 GMT</pubDate>
+      
+      <description>&lt;p&gt;오랜만의 포스팅하는 오늘의 주제는 Netty의 HashedWheelTimer에 대한 분석글이다. 해당 Timer의 장점과 사용이유 Java의 Timer의 한계점 등에 대해서 소개해보려 한다.&lt;/p&gt;</description>
+      
+      
+      
+      <content:encoded><![CDATA[<p>오랜만의 포스팅하는 오늘의 주제는 Netty의 HashedWheelTimer에 대한 분석글이다. 해당 Timer의 장점과 사용이유 Java의 Timer의 한계점 등에 대해서 소개해보려 한다.</p><span id="more"></span><h3 id="Java-util-Timer"><a href="#Java-util-Timer" class="headerlink" title="Java.util.Timer"></a><strong>Java.util.Timer</strong></h3><p>Java는 기본적으로 Timer 객체를 제공하고 있다. 사용법은 TimerTask를 생성하여 Timer에 등록한 후 시간값을 입력하여주면 된다. 그 예시는 다음과 같다.</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Timer;</span><br><span class="line"><span class="keyword">import</span> java.util.TimerTask;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">Timer</span> <span class="variable">m</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Timer</span>();</span><br><span class="line">        <span class="type">TimerTask</span> <span class="variable">task</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TimerTask</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;timer!&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        m.schedule(task,<span class="number">5000</span>);<span class="comment">// 5초 뒤에 실행</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>사용법은 간단하지만 빈번한 타이머 사용의 경우, 해당 클래스로는 좋은 성능을 내기 힘들다. java.util.Timer 객체는 내부적으로 TimerTask를 binary heap 구조로 관리하기 떄문에 TimerTask 추가, 삭제시 일어나는 동기화시간이 길어질 수 밖에 없다. 다음은 타이머 객체의 동기화 코드이다.</p><center><img src="/post_images/Netty/Timer/timer_code.png"></center><p>이런 동기화시간의 장기화는 프로그램의 성능을 저하시킬 수 밖에 없다. 최근 Timer 기능을 사용하여 업무를 설계해야 하는일이 발생하였고 위와 같은 문제점을 알고있었기에, TimingWheel 자료구조를 사용하는 Netty의 HashedWheelTimer 객체를 사용하기로 하였다.</p><h3 id="Timing-Wheel"><a href="#Timing-Wheel" class="headerlink" title="Timing Wheel"></a><strong>Timing Wheel</strong></h3><p>TimingWheel 의 기본구조는 고정된 크기의 순환배열이다.</p><center><img src="/post_images/Netty/Timer/timingWheel.png"></center><p>배열의 각 버킷을 타임슬롯(time slot)이라고 부르고, 해당 슬롯은 타임아웃이 발생할 떄 처리해야할 작업에 대한 리스트를 담고있다. 기본적인 동작과정은 슬롯 시간 간격마다 타임슬롯을 순회하며, 해당 타임슬롯에 담긴 내용을 처리하는 방식으로 이루어진다.</p><p>해당 타임 슬롯에 타임아웃을 추가하는 경우 단순히 add연산자를 통해 추가할수 있으므로, java의 타이머에 비해 동기화시간히 짧아지게 된다.</p><h3 id="HashedWheelTimer"><a href="#HashedWheelTimer" class="headerlink" title="HashedWheelTimer"></a><strong>HashedWheelTimer</strong></h3><p>위에서 언급한 휠 타이머는 최대 시간 제한이 있다는 단점이 있다. 타임슬롯을 넘어가는 값을 등록할 수가 없는것이다.</p><center><img src="/post_images/Netty/Timer/wheelTimer.png"></center><p>이러한 단점을 극복하기 위해 Netty의 HashedWheelTimer는 남은 바퀴수까지 계산하여 등록시간제한문제를 해결하였다.</p><center><img src="/post_images/Netty/Timer/hashedWheelTimer.png"></center><h3 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a><strong>마치며</strong></h3><p>오늘은 POJO의 등장배경에 대해 알아보았다. 이 포스팅을 정리하며 EJB부터 Spring까지 Java 서버개발의 역사에 대해 전반적으로 알 수 있었다. 사실 EJB에 대해서 정확하게 알 수는 없지만 Spring, Pojo의 등장 배경에 대해 좀 더 잘 이해할 수 있는 시간이어서 의미있는 시간이었다.</p><p>이전 포스팅에서도 언급했지만 개발자로 살아간다면, 자신이 사용하거나 사용할 기술들에 대하여 ‘왜 사용되어야 하는가?’ 라는 의문은 계속 제기하면서 살아야 한다고 생각한다. 그런 의미에서 이번 POJO 포스팅은 좀 더 개발다운 사람이 되는 시간이었다.</p><p>출처:</p><ul><li><a href="https://d2.naver.com/helloworld/267396">https://d2.naver.com/helloworld/267396</a></li></ul>]]></content:encoded>
+      
+      
+      <category domain="https://seoyoonho.github.io/categories/Netty/">Netty</category>
+      
+      <category domain="https://seoyoonho.github.io/categories/Netty/Timer/">Timer</category>
+      
+      
+      <category domain="https://seoyoonho.github.io/tags/Netty/">Netty</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Timer/">Timer</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Wheel-Timer/">Wheel Timer</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Hashed-Wheel-Timer/">Hashed Wheel Timer</category>
+      
+      
+      <comments>https://seoyoonho.github.io/2022/08/30/Netty-Hashed-Wheel-Timer/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>DB 엔진 업그레이드시 유의사항</title>
+      <link>https://seoyoonho.github.io/2022/07/18/DB-%EC%97%94%EC%A7%84-%EC%97%85%EA%B7%B8%EB%A0%88%EC%9D%B4%EB%93%9C%EC%8B%9C-%EC%9C%A0%EC%9D%98%EC%82%AC%ED%95%AD/</link>
+      <guid>https://seoyoonho.github.io/2022/07/18/DB-%EC%97%94%EC%A7%84-%EC%97%85%EA%B7%B8%EB%A0%88%EC%9D%B4%EB%93%9C%EC%8B%9C-%EC%9C%A0%EC%9D%98%EC%82%AC%ED%95%AD/</guid>
+      <pubDate>Mon, 18 Jul 2022 13:25:41 GMT</pubDate>
+      
+      <description>&lt;p&gt;최근 회사에서 오라클 버전 업그레이드 작업이 진행되었다. 기존 11g의 지원기간(EOS)가 2022년 7월까지였고, 정말 하기 싫었지만 업그레이드 작업은 필수가 되었다. 현재 지원되는 오라클 버전중 19c가 가장 EOS기간이 긴 버전이었고 해당 버전으로 업그레이드가 진행되었다.&lt;/p&gt;
+&lt;p&gt;업그레이드를 진행하면서 난감한 상황과 아찔한 상황들을 많이 겪었는데, 업그레이드를 앞둔 다른 개발자들에게 조금이라도 도움이 되었으면 하는 바램으로 해당 내용들을 공유하고자 한다.&lt;/p&gt;</description>
+      
+      
+      
+      <content:encoded><![CDATA[<p>최근 회사에서 오라클 버전 업그레이드 작업이 진행되었다. 기존 11g의 지원기간(EOS)가 2022년 7월까지였고, 정말 하기 싫었지만 업그레이드 작업은 필수가 되었다. 현재 지원되는 오라클 버전중 19c가 가장 EOS기간이 긴 버전이었고 해당 버전으로 업그레이드가 진행되었다.</p><p>업그레이드를 진행하면서 난감한 상황과 아찔한 상황들을 많이 겪었는데, 업그레이드를 앞둔 다른 개발자들에게 조금이라도 도움이 되었으면 하는 바램으로 해당 내용들을 공유하고자 한다.</p><span id="more"></span><h3 id="다운타임에-대한-대책"><a href="#다운타임에-대한-대책" class="headerlink" title="다운타임에 대한 대책"></a><strong>다운타임에 대한 대책</strong></h3><p>첫번째로 고려할 사항은 다운타임에 대한 대책을 세워야 한다는 점이다. AWS Oracle RDS 메이저버전 업그레이드시에 1시간 가량의 다운타임이 생기는데 이 상황에서 기존 서비스들이 어떤 방법으로 대응해야하는지 계획을 세워야 한다.</p><p>내가 회사에서 운영중인 시스템의 경우 실시간 처리시스템이지만, 데이터가 우선 Kinesis로 들어와 각 서비스로 분기처리 되기 떄문에 DB 다운타임 발생시, DB적재 서비스만 잠시 멈춰두었다 작업 이후 실행시켜주면 되었다. 이런식으로 잘 짜여진 아키텍쳐라면 영향도를 최소화하며 작업을 진행할 수 있기때문에 시스템 구축시 아키텍쳐가 얼마나 중요한지 알 수 있었다.</p><h3 id="JDK별-JDBC버전-확인"><a href="#JDK별-JDBC버전-확인" class="headerlink" title="JDK별 JDBC버전 확인"></a><strong>JDK별 JDBC버전 확인</strong></h3><p>Oracle Database의 Java프로그램 DB커넥션은 oracle에서 제공해주는 ojdbc 라이브러리를 통해 맺어지게 된다. 공식사이트에 가게되면 Oracle 엔진 버전과 Jdk버전에 호환되는 ojdbc 버전이 명시되어있다. 물론 해당 ojdbc 버전을 사용하지 않는다고해서 문제가 꼭 생기지 않을수도 있다. 하지만 우리 회사에서 진행된 오라클 버전 업그레이드 작업에서는 해당 문제가 발생하였다.</p><p>기존에는 ojdbc6.jar파일을 사용하였는데, ojdbc라이브러리의 버전 호환성을 생각하지 못하고 각종 테스트를 진행하였다. 모든 기능과 성능에서 문제가 없다고 판단되어 반영을 3일 앞둔 시점에 테스트중이던 배치프로그램에서 문제가 발생였다. 잘 수행되던 배치 프로그램이 갑자기 커넥션을 맺는데 시간이 점점 늘어나더니, 기존에 5초정도면 수행되던 배치가 10분 20분이 걸리기 시작한 것이다. 패닉상황이었지만 결국 ojdbc버전 호환성 문제임을 인식하고 해결을 하였지만, 전 프로그램에 대해서 테스트 재수행과 라이브러리 버전업그레이드로 인한 소스 수정은 불가피했다.</p><p>이와같은 상황이 발생하지 않도록 아래의 oracle 버전과 jdk버전에 따른 ojdbc라이브러리 버전을 잘 확인해보기 바란다.</p><center><img src="/post_images/db_upgrade/ojdbc.png"></center><p>[자료출처] <a href="https://www.oracle.com/database/technologies/faq-jdbc.html">https://www.oracle.com/database/technologies/faq-jdbc.html</a></p><h3 id="응용서비스-SQL전수검사"><a href="#응용서비스-SQL전수검사" class="headerlink" title="응용서비스 SQL전수검사"></a><strong>응용서비스 SQL전수검사</strong></h3><p>DB전환작업을 진행하게 되면 전체적인 쿼리에 대한 검사가 필요하다. 기본적이 기능검사는 물론 성능검사가 필수이다. 오라클 버전이 업그레이드 되면서 기존에 지원되던 함수가 실행되지 않을수도 있고, 빠르게 수행되던 쿼리가 느리게 수행될 수도 있다.</p><p>우리의 이번 업그레이드 과정에서는 기존에 3분정도 걸리던 배치수행쿼리가 20분 이상 걸리는 현상이 발견되었다. 업그레이드 된 데이터베이스에서 쿼리 작성자가 의도했던 인덱스를 타지 않았던 것이 원인이 되었다. 이 경우 의도한 인덱스를 타도록 힌트를 주어 해결하였다.</p><h3 id="데이터베이스-사설IP-변경대응"><a href="#데이터베이스-사설IP-변경대응" class="headerlink" title="데이터베이스 사설IP 변경대응"></a><strong>데이터베이스 사설IP 변경대응</strong></h3><p>RDS가 업그레이드 되는 과정은 새로운 RDS를 생성하여 기존 데이터베이스와 바꿔치는 과정이다. 이 과정에서 도메인 주소는 기존과 동일하지만, 사설 IP는 변경이 될 수 밖에없다. 타 시스템 혹은 우리 시스템 내부에서도 사설IP를 통해 운영되는 서비스가 있다면 버전 업그레이드 작업 진행과 동시에 IP변경작업도 진행해주어야 한다.</p><p>기존에 타 시스템과 우리시스템의 결합도를 미리 파악하고 사전 공유해주는게 굉장히 중요하다고 할 수있다. 이번에 진행된 우리 시스템에서는 이 부분을 놓쳐 연계솔루션 팀과 빅데이터 파트와의 연결이 끊어져, 해당파트에서 주말동안 복구작업을 진행하였다고 전달받았다. 이러한 불상사가 생기지 않도록 미리 잘 파악해야 한다.</p><h3 id="Character-set-인코딩-이슈"><a href="#Character-set-인코딩-이슈" class="headerlink" title="Character set, 인코딩 이슈"></a><strong>Character set, 인코딩 이슈</strong></h3><p>해당 이슈는 내가 겪었던 이슈는 아니지만 많은 사람들이 오라클 데이터 전환작업에서 유의할 사항으로 뽑았기에 추가해 보았다. 기존 데이터에서 지원되던 character set이 19c에서는 지원이 안되는 경우가 있다고 한다.</p><p>해당 이슈는 꽤나 큰 문제가 될 수 있으니 미리 체크를 하여, 업그레이드 될 데이터베이스에서 지원해주는 캐릭터셋으로 미리 변경하여 영향도를 최대한 감수할 필요가 있다.</p><h3 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a><strong>마치며</strong></h3><p>이번 포스팅에서는 회사에서 진행된 오라클 버전업그레이드시 내가 겪었던 다양한 상황들에 대해서 다루어 봤다. 위에서 다룬 이슈들 이외에 많은 유의사항이 있겠지만 아직 능력이 부족해 다 파악하지는 못했던거 같다. 앞으로 연차가 더 쌓이면 위에서 언급한 실수들도 더이상 안하게 되고, 더 깊이 있는 내용까지 신경쓸 수 있겠지 라고 생각한다…</p><p>출처:</p><ul><li><a href="https://ojava.tistory.com/164">https://ojava.tistory.com/164</a></li></ul>]]></content:encoded>
+      
+      
+      <category domain="https://seoyoonho.github.io/categories/AWS/">AWS</category>
+      
+      <category domain="https://seoyoonho.github.io/categories/AWS/RDS/">RDS</category>
+      
+      
+      <category domain="https://seoyoonho.github.io/tags/AWS/">AWS</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/STIS/">STIS</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/RDS/">RDS</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/Oracle/">Oracle</category>
+      
+      <category domain="https://seoyoonho.github.io/tags/%EC%97%85%EA%B7%B8%EB%A0%88%EC%9D%B4%EB%93%9C/">업그레이드</category>
+      
+      
+      <comments>https://seoyoonho.github.io/2022/07/18/DB-%EC%97%94%EC%A7%84-%EC%97%85%EA%B7%B8%EB%A0%88%EC%9D%B4%EB%93%9C%EC%8B%9C-%EC%9C%A0%EC%9D%98%EC%82%AC%ED%95%AD/#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>AWS Lambda를 이용한 Restful API서비스 개발(2)</title>
