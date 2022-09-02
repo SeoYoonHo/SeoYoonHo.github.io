@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://seoyoonho.github.io/2022/09/02/Java-GC-Garbage-Collection-%EC%97%90-%EB%8C%80%ED%95%98%EC%97%AC/</loc>
+        <lastmod>2022-09-02T05:43:44.319Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://seoyoonho.github.io/2022/08/30/Netty-Hashed-Wheel-Timer/</loc>
         <lastmod>2022-08-30T05:31:03.441Z</lastmod>
         <changefreq>weekly</changefreq>
